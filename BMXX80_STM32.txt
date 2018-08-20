@@ -1,0 +1,55 @@
+Configuration	BMXX80_STM32
+STM32CubeMX 	4.22.1
+Date	08/12/2018
+MCU	STM32F401RETx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+I2C1	I2C	I2C1_SCL	PB8
+I2C1	I2C	I2C1_SDA	PB9
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+TIM3	Internal Clock	TIM3_VS_ClockSourceINT	VP_TIM3_VS_ClockSourceINT
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+8	PC0	GPIO_Output	LCD_E
+9	PC1	GPIO_Output	LCD_RS
+11	PC3	GPIO_Output	LCD_RW
+21	PA5	GPIO_Output	LED
+40	PC9	GPIO_Output	TEST
+56	PB4	GPIO_Output	LCD_DB4
+57	PB5	GPIO_Output	LCD_DB5
+58	PB6	GPIO_Output	LCD_DB6
+59	PB7	GPIO_Output	LCD_DB7
+61	PB8	I2C1_SCL	
+62	PB9	I2C1_SDA	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : BMXX80_STM32
+Project Folder : D:\GoogleDrive\Blog msalamon.pl\Materia³y do wpisów\2 .BMP180, BMP280, BME280 na STM32\Kod\BMXX80_STM32
+Toolchain / IDE : SW4STM32
+Firmware Package Name and Version : STM32Cube FW_F4 V1.16.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : Yes
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+
