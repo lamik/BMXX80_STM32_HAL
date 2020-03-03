@@ -16,12 +16,17 @@
 //	Settings
 //	Choose sensor
 //
-	#define BMP180
+//	#define BMP180
 #ifndef BMP180
-//	#define BMP280
+	#define BMP280
 #ifndef BMP280
 	#define BME280
 #endif
+#define BMP_I2C 1
+#define BMP_SPI 0
+#endif
+#ifdef BMP180
+#define BMP_I2C 1
 #endif
 
 //
@@ -250,7 +255,12 @@ float BMP180_PressureToAltitude(float sea_level, float atmospheric);
 float BMP180_SeaLevelForAltitude(float altitude, float atmospheric);
 #endif
 #ifdef BMP280
+#if(BMP_I2C == 1)
 void BMP280_Init(I2C_HandleTypeDef *i2c_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t mode);
+#endif
+#if(BMP_SPI == 1)
+void BMP280_Init(SPI_HandleTypeDef *spi_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t mode);
+#endif
 void BMP280_SetConfig(uint8_t standby_time, uint8_t filter);
 
 float BMP280_ReadTemperature(void);
@@ -260,7 +270,12 @@ uint8_t BMP280_ReadTemperatureAndPressure(float *temperature, int32_t *pressure)
 float BMP280_ReadAltitude(float sea_level_pa);
 #endif
 #ifdef BME280
+#if(BMP_I2C == 1)
 void BME280_Init(I2C_HandleTypeDef *i2c_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t huminidity_oversampling, uint8_t mode);
+#endif
+#if(BMP_SPI == 1)
+void BME280_Init(SPI_HandleTypeDef *spi_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t huminidity_oversampling, uint8_t mode);
+#endif
 void BME280_SetConfig(uint8_t standby_time, uint8_t filter);
 
 float BME280_ReadTemperature(void);

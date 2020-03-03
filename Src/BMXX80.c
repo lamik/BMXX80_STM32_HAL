@@ -25,7 +25,12 @@
 //
 //	 Private variables
 //
+#if(BMP_I2C == 1)
 I2C_HandleTypeDef *i2c_h;
+#endif
+#if(BMP_SPI == 1)
+SPI_HandleTypeDef *spi_h;
+#endif
 
 #ifdef BMP180
 uint8_t oversampling;
@@ -61,21 +66,37 @@ uint8_t BMP180_Read8(uint8_t addr)
 #ifdef BMP280
 uint8_t BMP280_Read8(uint8_t addr)
 {
-  uint8_t tmp = 0;
-
+#if(BMP_I2C == 1)
+	uint8_t tmp = 0;
   HAL_I2C_Mem_Read(i2c_h, BMP280_I2CADDR, addr, 1, &tmp, 1, 10);
-
   return tmp;
+#endif
+#if(BMP_SPI == 1)
+    uint8_t tmp[2];
+	tmp[0] = addr;
+	tmp[0] |= (1<<7);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 2, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+	return tmp[1];
+#endif
 }
 #endif
 #ifdef BME280
 uint8_t BME280_Read8(uint8_t addr)
 {
-  uint8_t tmp = 0;
-
-  HAL_I2C_Mem_Read(i2c_h, BME280_I2CADDR, addr, 1, &tmp, 1, 10);
-
-  return tmp;
+#if(BMP_I2C == 1)
+	uint8_t tmp = 0;
+	HAL_I2C_Mem_Read(i2c_h, BME280_I2CADDR, addr, 1, &tmp, 1, 10);
+	return tmp;
+#endif
+  uint8_t tmp[2];
+	tmp[0] = addr;
+	tmp[0] |= (1<<7);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 2, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+	return tmp[1];
 }
 #endif
 
@@ -93,12 +114,20 @@ uint16_t BMP180_Read16(uint8_t addr)
 #ifdef BMP280
 uint16_t BMP280_Read16(uint8_t addr)
 {
-
+#if(BMP_I2C == 1)
 	uint8_t tmp[2];
-
 	HAL_I2C_Mem_Read(i2c_h, BMP280_I2CADDR, addr, 1, tmp, 2, 10);
-
 	return ((tmp[0] << 8) | tmp[1]);
+#endif
+#if(BMP_SPI == 1)
+	uint8_t tmp[3];
+	tmp[0] = addr;
+	tmp[0] |= (1<<7);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 3, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+	return ((tmp[1] << 8) | tmp[2]);
+#endif
 }
 
 uint16_t BMP280_Read16LE(uint8_t addr)
@@ -112,12 +141,20 @@ uint16_t BMP280_Read16LE(uint8_t addr)
 #ifdef BME280
 uint16_t BME280_Read16(uint8_t addr)
 {
-
+#if(BMP_I2C == 1)
 	uint8_t tmp[2];
-
-	HAL_I2C_Mem_Read(i2c_h, BME280_I2CADDR, addr, 1, tmp, 2, 10);
-
+	HAL_I2C_Mem_Read(i2c_h, BMP280_I2CADDR, addr, 1, tmp, 2, 10);
 	return ((tmp[0] << 8) | tmp[1]);
+#endif
+#if(BMP_SPI == 1)
+	uint8_t tmp[3];
+	tmp[0] = addr;
+	tmp[0] |= (1<<7);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 3, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+	return ((tmp[1] << 8) | tmp[2]);
+#endif
 }
 
 uint16_t BME280_Read16LE(uint8_t addr)
@@ -138,31 +175,71 @@ void BMP180_Write8(uint8_t address, uint8_t data)
 #ifdef BMP280
 void BMP280_Write8(uint8_t address, uint8_t data)
 {
+#if(BMP_I2C == 1)
 	HAL_I2C_Mem_Write(i2c_h, BMP280_I2CADDR, address, 1, &data, 1, 10);
+#endif
+#if(BMP_SPI == 1)
+	uint8_t tmp[2];
+	tmp[0] = address;
+	tmp[0] &= ~(1<<7);
+	tmp[1] = data;
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 2, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+#endif
 }
 
 uint32_t BMP280_Read24(uint8_t addr)
 {
+#if(BMP_I2C == 1)
 	uint8_t tmp[3];
-
 	HAL_I2C_Mem_Read(i2c_h, BMP280_I2CADDR, addr, 1, tmp, 3, 10);
-
 	return ((tmp[0] << 16) | tmp[1] << 8 | tmp[2]);
+#endif
+#if(BMP_SPI == 1)
+	uint8_t tmp[4];
+	tmp[0] = addr;
+	tmp[0] |= (1<<7);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 3, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+	return ((tmp[1] << 16) | tmp[2] << 8 | tmp[3]);
+#endif
 }
 #endif
 #ifdef BME280
 void BME280_Write8(uint8_t address, uint8_t data)
 {
+#if(BMP_I2C == 1)
 	HAL_I2C_Mem_Write(i2c_h, BME280_I2CADDR, address, 1, &data, 1, 10);
+#endif
+#if(BMP_SPI == 1)
+	uint8_t tmp[2];
+	tmp[0] = address;
+	tmp[0] &= ~(1<<7);
+	tmp[1] = data;
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 2, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+#endif
 }
 
 uint32_t BME280_Read24(uint8_t addr)
 {
+#if(BMP_I2C == 1)
 	uint8_t tmp[3];
-
-	HAL_I2C_Mem_Read(i2c_h, BME280_I2CADDR, addr, 1, tmp, 3, 10);
-
+	HAL_I2C_Mem_Read(i2c_h, BMP280_I2CADDR, addr, 1, tmp, 3, 10);
 	return ((tmp[0] << 16) | tmp[1] << 8 | tmp[2]);
+#endif
+#if(BMP_SPI == 1)
+	uint8_t tmp[4];
+	tmp[0] = addr;
+	tmp[0] |= (1<<7);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_SPI_TransmitReceive(spi_h, tmp, tmp, 3, 10);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+	return ((tmp[1] << 16) | tmp[2] << 8 | tmp[3]);
+#endif
 }
 #endif
 
@@ -245,13 +322,21 @@ void BMP180_Init(I2C_HandleTypeDef *i2c_handler, uint8_t mode)
 #ifdef BMP280
 void BMP280_SetConfig(uint8_t standby_time, uint8_t filter)
 {
-	BMP280_Write8(BME280_CONFIG, (((standby_time & 0x7) << 5) | ((filter & 0x7) << 2)) & 0xFC);
+	BMP280_Write8(BMP280_CONFIG, (((standby_time & 0x7) << 5) | ((filter & 0x7) << 2)) & 0xFC);
 }
-
+#if(BMP_I2C == 1)
 void BMP280_Init(I2C_HandleTypeDef *i2c_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t mode)
 {
 	i2c_h = i2c_handler;
-
+#endif
+#if(BMP_SPI == 1)
+void BMP280_Init(SPI_HandleTypeDef *spi_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t mode)
+{
+	spi_h = spi_handler;
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_Delay(5);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+#endif
 	if (mode > BMP280_NORMALMODE)
 	    mode = BMP280_NORMALMODE;
 	_mode = mode;
@@ -301,9 +386,19 @@ void BME280_SetConfig(uint8_t standby_time, uint8_t filter)
 	BME280_Write8(BME280_CONFIG, (uint8_t)(((standby_time & 0x7) << 5) | ((filter & 0x7) << 2)) & 0xFC);
 }
 
+#if(BMP_I2C == 1)
 void BME280_Init(I2C_HandleTypeDef *i2c_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t huminidity_oversampling, uint8_t mode)
 {
 	i2c_h = i2c_handler;
+#endif
+#if(BMP_SPI == 1)
+void BME280_Init(SPI_HandleTypeDef *spi_handler, uint8_t temperature_resolution, uint8_t pressure_oversampling, uint8_t huminidity_oversampling, uint8_t mode)
+{
+	spi_h = spi_handler;
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_RESET);
+	HAL_Delay(5);
+	HAL_GPIO_WritePin(BMP_CS_GPIO_Port, BMP_CS_Pin, GPIO_PIN_SET);
+#endif
 	uint8_t HumReg, i;
 
 	if (mode > BME280_NORMALMODE)
